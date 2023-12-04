@@ -1,0 +1,10 @@
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--font-size);
+
+  font-family: "Arial";
+
+  margin: 0;
+  padding: 0;
+}
