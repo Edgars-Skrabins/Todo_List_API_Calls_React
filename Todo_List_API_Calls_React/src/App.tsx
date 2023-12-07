@@ -57,14 +57,13 @@ function App() {
     const getCurrentDate = (): string => {
         const timeStamp = Date.now();
         const date = new Date(timeStamp);
-        const formattedDate = date.toLocaleString();
-        return formattedDate;
+        return date.toLocaleString();
     }
 
     const initializeDbTasks = () => {
         axios.get("http://localhost:3004/tasks")
             .then(response => {
-                const dbTasks:Task[] = response.data;
+                const dbTasks: Task[] = response.data;
                 dbTasks.forEach((e) => {
                     const newTask: TaskProps = {
                         id: e.id,
@@ -74,8 +73,8 @@ function App() {
                         onEdit: () => editTask(e.id),
                         onDelete: () => deleteTask(e.id),
                     };
-                    const newTasks = [...tasks, newTask];
 
+                    const newTasks = [...tasks, newTask];
                     setTasks(prevTasks => [...prevTasks, ...newTasks]);
                 });
             })
@@ -120,24 +119,49 @@ function App() {
             id: task.id,
         })
             .then(response => {
-                console.log("Task saved succesfully",response.data);
+                console.log("Task saved", response.data);
             })
             .catch(error => {
-            console.log("Error saving task", error);
+                console.log("Error saving task", error);
+            })
+    }
+
+    const updateToDB = (id: number) => {
+        const apiUrl= `http://localhost:3004/tasks/${id}`
+
+        let taskToSave = [...tasks];
+        taskToSave = taskToSave.filter(task => task.id === id);
+
+        axios.put(apiUrl, {
+            name: editTaskName,
+            description: editTaskDescription,
+            createdAt: taskToSave[0].createdAt,
+            id: taskToSave[0].id,
+        })
+            .then(response => {
+                console.log("Task updated", response.data);
+            })
+            .catch(error => {
+                console.log("Error updating task", error);
+            })
+
+    }
+
+    const refreshBtnEvents = () => {
+        let clonedTaskArr: TaskProps[] = [...tasks];
+        clonedTaskArr.forEach((e) => {
+            e.onEdit = () => editTask(e.id);
         })
     }
+    refreshBtnEvents();
 
-    const updateToDB = () => {
-
-    }
-
-    const deleteFromDB = (id:number) => {
+    const deleteFromDB = (id: number) => {
 
         const apiUrl = `http://localhost:3004/tasks/${id}`
 
         axios.delete(apiUrl)
             .then(response => {
-                console.log("Task deleted succesfully",response.data);
+                console.log("Task deleted", response.data);
             })
             .catch(error => {
                 console.log("Error deleting task", error);
@@ -148,9 +172,11 @@ function App() {
         setEditDialogs([]);
 
         let clonedTaskArr = [...tasks];
-        clonedTaskArr = clonedTaskArr.filter(task => task.id !== id);
+        clonedTaskArr = clonedTaskArr.filter(task => task.id === id);
 
         const task: TaskProps = clonedTaskArr[0];
+
+        if (clonedTaskArr.length === 0) return;
 
         const newEditDialog: EditDialogProps = {
             id: task.id,
@@ -177,25 +203,26 @@ function App() {
     const onEditConfirm = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
         e.preventDefault();
 
-
         setTasks(prevTasks =>
             prevTasks.map(task => task.id === id ?
                 {...task, name: editTaskName, description: editTaskDescription} : task));
 
 
+
+        updateToDB(id);
+
         setEditDialogs([]);
     }
 
+    const refreshEditEvents = () => {
+        let clonedEditDialogArr: EditDialogProps[] = [...editDialogs];
+        clonedEditDialogArr.forEach((e) => {
+            e.onEditConfirm = onEditConfirm;
+        })
+    }
+    refreshEditEvents();
+
     const deleteTask = (id: number) => {
-
-        // TODO: Why no work or work thing
-
-        // No work
-        // let clonedTaskArr:TaskProps[] = [...tasks];
-        // clonedTaskArr = clonedTaskArr.filter(task => task.id !== id);
-        // setTasks(clonedTaskArr);
-
-        // Works
         setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
 
         deleteFromDB(id)
@@ -204,7 +231,7 @@ function App() {
     return (
         <>
             <section>
-                {editDialogs.map(({id, name, description, onEditCancel, onEditConfirm, onNameInput, onDescriptionInput}) => (
+                {editDialogs.map(({id, name, description, onEditCancel, onEditConfirm,onNameInput,onDescriptionInput}) => (
                     <EditDialog
                         key={id}
                         id={id}
@@ -213,7 +240,8 @@ function App() {
                         onEditCancel={onEditCancel}
                         onEditConfirm={onEditConfirm}
                         onNameInput={onNameInput}
-                        onDescriptionInput={onDescriptionInput}/>
+                        onDescriptionInput={onDescriptionInput}
+                    />
                 ))}
             </section>
 
@@ -244,6 +272,4 @@ function App() {
     )
 }
 
-export default App
-
-
+export default App;
