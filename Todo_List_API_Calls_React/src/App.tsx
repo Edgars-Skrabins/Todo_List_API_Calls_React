@@ -16,12 +16,13 @@ export type EditDialogProps = {
 
     onEditCancel: (e: React.MouseEvent<HTMLButtonElement>) => void;
     onEditConfirm: (e: React.MouseEvent<HTMLButtonElement>, id: number) => void;
-}
+};
 
 export type CreateTaskProps = {
     onCreateBtnClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
     onNameInput: (name: string) => void;
     onDescriptionInput: (name: string) => void;
+
 }
 
 export type TaskProps = {
@@ -61,7 +62,7 @@ function App() {
     }
 
     const initializeDbTasks = () => {
-        axios.get("http://localhost:3004/tasks")
+        axios.get("http://localhost:3001/tasks")
             .then(response => {
                 const dbTasks: Task[] = response.data;
                 dbTasks.forEach((e) => {
@@ -110,7 +111,7 @@ function App() {
 
     const saveToDB = (task: TaskProps) => {
 
-        const apiUrl = `http://localhost:3004/tasks/`
+        const apiUrl = `http://localhost:3001/tasks/`
 
         axios.post(apiUrl, {
             name: task.name,
@@ -127,7 +128,7 @@ function App() {
     }
 
     const updateToDB = (id: number) => {
-        const apiUrl= `http://localhost:3004/tasks/${id}`
+        const apiUrl= `http://localhost:3001/tasks/${id}`
 
         let taskToSave = [...tasks];
         taskToSave = taskToSave.filter(task => task.id === id);
@@ -148,7 +149,7 @@ function App() {
     }
 
     const refreshBtnEvents = () => {
-        let clonedTaskArr: TaskProps[] = [...tasks];
+        const clonedTaskArr: TaskProps[] = [...tasks];
         clonedTaskArr.forEach((e) => {
             e.onEdit = () => editTask(e.id);
         })
@@ -157,7 +158,7 @@ function App() {
 
     const deleteFromDB = (id: number) => {
 
-        const apiUrl = `http://localhost:3004/tasks/${id}`
+        const apiUrl = `http://localhost:3001/tasks/${id}`
 
         axios.delete(apiUrl)
             .then(response => {
@@ -207,15 +208,13 @@ function App() {
             prevTasks.map(task => task.id === id ?
                 {...task, name: editTaskName, description: editTaskDescription} : task));
 
-
-
         updateToDB(id);
 
         setEditDialogs([]);
     }
 
     const refreshEditEvents = () => {
-        let clonedEditDialogArr: EditDialogProps[] = [...editDialogs];
+        const clonedEditDialogArr: EditDialogProps[] = [...editDialogs];
         clonedEditDialogArr.forEach((e) => {
             e.onEditConfirm = onEditConfirm;
         })
@@ -271,5 +270,37 @@ function App() {
         </>
     )
 }
+
+
+interface Product {
+    name: string;
+    price: number;
+}
+
+const Sort = (products: Product[]): Product[] => {
+    const n = products.length;
+
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            if (products[j].price > products[j + 1].price) {
+                [products[j], products[j + 1]] = [products[j + 1], products[j]];
+            }
+        }
+    }
+
+    return products;
+};
+
+const products: Product[] = [
+    { name: 'Laptop', price: 800 },
+    { name: 'Phone', price: 500 },
+    { name: 'Tablet', price: 300 },
+    // ... more products
+];
+
+const sortedProducts: Product[] = Sort(products);
+console.log(sortedProducts);
+
+
 
 export default App;
