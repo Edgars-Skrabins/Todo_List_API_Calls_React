@@ -23,7 +23,6 @@ db.connect((err) => {
 
     console.log('Connected to server');
 
-
     db.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`, (error) => {
         if (error) {
             console.error('Error creating database', error);

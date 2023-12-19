@@ -22,7 +22,6 @@ export type CreateTaskProps = {
     onCreateBtnClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
     onNameInput: (name: string) => void;
     onDescriptionInput: (name: string) => void;
-
 }
 
 export type TaskProps = {
@@ -54,6 +53,7 @@ function App() {
     const [editTaskDescription, setEditTaskDescription] = useState('');
 
     const [hasLoadedDB, setHasLoadedDB] = useState(false);
+
 
     const getCurrentDate = (): string => {
         const timeStamp = Date.now();
